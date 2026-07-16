@@ -1,0 +1,54 @@
+# Obsidian
+.obsidian/
+
+# macOS
+.DS_Store
+
+# Backups
+.attachments/
+
+# Personal attachments (large media, not source-controlled)
+# (见上 .attachments/)
+
+# Local AI workflows
+.claude/
+.claudian/
+.spec-workflow/
+
+# Clippings — 临时区，已归档的文件迁到 40_资源/ 后原文件不提交
+Clippings/
+
+# Trash
+.trash/
+
+# 0_收件箱 — 私人未归档想法
+00_收件箱/
+
+# 99_归档 — 已完结项可不提交（按需取）
+# 99_归档/
+
+# 90_模板 — 复用模板（一般需要提交，方便同步）
+# 90_模板/
+
+# 50_输出 — 已发布的公众号文章 + HTML 一般不提交（用 git-lfs 管理或单独仓库）
+# 50_输出/
+
+# 环境配置
+.env
+.env.local
+.env.*
+!.env.example
+
+# 临时
+*.log
+*.tmp
+*.swp
+*.bak
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Node
+node_modules/
