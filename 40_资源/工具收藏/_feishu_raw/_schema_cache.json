@@ -1,0 +1,431 @@
+{
+  "13": [
+    {
+      "id": "fldSHKDFH1",
+      "name": "来源资料",
+      "type": "text",
+      "options": null
+    },
+    {
+      "id": "fldiJGuQw3",
+      "name": "源路径",
+      "type": "text",
+      "options": null
+    },
+    {
+      "id": "fld752mHnf",
+      "name": "可支撑选题",
+      "type": "text",
+      "options": null
+    },
+    {
+      "id": "flddB6il9X",
+      "name": "原子类型",
+      "type": "select",
+      "options": [
+        {
+          "hue": "Blue",
+          "lightness": "Lighter",
+          "name": "事实"
+        },
+        {
+          "hue": "Red",
+          "lightness": "Lighter",
+          "name": "痛点"
+        },
+        {
+          "hue": "Yellow",
+          "lightness": "Lighter",
+          "name": "流程"
+        },
+        {
+          "hue": "Green",
+          "lightness": "Lighter",
+          "name": "案例"
+        },
+        {
+          "hue": "Purple",
+          "lightness": "Lighter",
+          "name": "观点"
+        },
+        {
+          "hue": "Gray",
+          "lightness": "Lighter",
+          "name": "边界"
+        },
+        {
+          "hue": "Wathet",
+          "lightness": "Lighter",
+          "name": "方案"
+        },
+        {
+          "hue": "Orange",
+          "lightness": "Lighter",
+          "name": "CTA"
+        }
+      ]
+    },
+    {
+      "id": "fldLAjMoeK",
+      "name": "不宜同篇出现",
+      "type": "text",
+      "options": null
+    },
+    {
+      "id": "fld66fpxoN",
+      "name": "源文件删除状态",
+      "type": "select",
+      "options": [
+        {
+          "hue": "Green",
+          "lightness": "Lighter",
+          "name": "可删源文件"
+        },
+        {
+          "hue": "Red",
+          "lightness": "Lighter",
+          "name": "暂不删除"
+        },
+        {
+          "hue": "Orange",
+          "lightness": "Lighter",
+          "name": "删除前复核"
+        }
+      ]
+    },
+    {
+      "id": "fldJjwJujJ",
+      "name": "适用标签",
+      "type": "select",
+      "options": [
+        {
+          "hue": "Red",
+          "lightness": "Lighter",
+          "name": "飞书"
+        },
+        {
+          "hue": "Blue",
+          "lightness": "Lighter",
+          "name": "Hermes"
+        },
+        {
+          "hue": "Gray",
+          "lightness": "Lighter",
+          "name": "n8n"
+        },
+        {
+          "hue": "Turquoise",
+          "lightness": "Lighter",
+          "name": "内容中台"
+        },
+        {
+          "hue": "Purple",
+          "lightness": "Lighter",
+          "name": "客户服务"
+        },
+        {
+          "hue": "Green",
+          "lightness": "Lighter",
+          "name": "销售获客"
+        },
+        {
+          "hue": "Lime",
+          "lightness": "Lighter",
+          "name": "知识管理"
+        },
+        {
+          "hue": "Carmine",
+          "lightness": "Lighter",
+          "name": "B端服务"
+        }
+      ]
+    },
+    {
+      "id": "fldg6fpCr5",
+      "name": "使用边界",
+      "type": "text",
+      "options": null
+    },
+    {
+      "id": "fldZ482o9i",
+      "name": "证据等级",
+      "type": "select",
+      "options": [
+        {
+          "hue": "Green",
+          "lightness": "Lighter",
+          "name": "A-可引用事实"
+        },
+        {
+          "hue": "Lime",
+          "lightness": "Lighter",
+          "name": "B-可用观点/方法"
+        },
+        {
+          "hue": "Orange",
+          "lightness": "Lighter",
+          "name": "C-启发参考"
+        },
+        {
+          "hue": "Red",
+          "lightness": "Lighter",
+          "name": "D-不可直接使用"
+        }
+      ]
+    },
+    {
+      "id": "fldDih9VZk",
+      "name": "原子内容",
+      "type": "text",
+      "options": null
+    },
+    {
+      "id": "fldS9ffFpp",
+      "name": "原子标题",
+      "type": "text",
+      "options": null
+    },
+    {
+      "id": "fldj6qsjj7",
+      "name": "已支撑选题",
+      "type": "link",
+      "options": null
+    },
+    {
+      "id": "fldWYDfxhl",
+      "name": "组合相容标签",
+      "type": "select",
+      "options": [
+        {
+          "hue": "Gray",
+          "lightness": "Lighter",
+          "name": "飞书"
+        },
+        {
+          "hue": "Blue",
+          "lightness": "Lighter",
+          "name": "Hermes"
+        },
+        {
+          "hue": "Gray",
+          "lightness": "Lighter",
+          "name": "n8n"
+        },
+        {
+          "hue": "Purple",
+          "lightness": "Lighter",
+          "name": "内容中台"
+        },
+        {
+          "hue": "Purple",
+          "lightness": "Lighter",
+          "name": "客户服务"
+        },
+        {
+          "hue": "Green",
+          "lightness": "Lighter",
+          "name": "销售获客"
+        },
+        {
+          "hue": "Lime",
+          "lightness": "Lighter",
+          "name": "知识管理"
+        },
+        {
+          "hue": "Carmine",
+          "lightness": "Lighter",
+          "name": "B端服务"
+        }
+      ]
+    },
+    {
+      "id": "fldC4WkGwO",
+      "name": "来源定位",
+      "type": "text",
+      "options": null
+    },
+    {
+      "id": "fld94hpXH8",
+      "name": "已使用次数",
+      "type": "number",
+      "options": null
+    },
+    {
+      "id": "fldkzyJkq2",
+      "name": "最近使用日期",
+      "type": "datetime",
+      "options": null
+    },
+    {
+      "id": "fldrSNlEy7",
+      "name": "源链接",
+      "type": "text",
+      "options": null
+    },
+    {
+      "id": "fldFYSn770",
+      "name": "Hermes使用状态",
+      "type": "select",
+      "options": [
+        {
+          "hue": "Green",
+          "lightness": "Lighter",
+          "name": "可直接取料"
+        },
+        {
+          "hue": "Orange",
+          "lightness": "Lighter",
+          "name": "需人工复核"
+        },
+        {
+          "hue": "Gray",
+          "lightness": "Lighter",
+          "name": "仅启发不引用"
+        },
+        {
+          "hue": "Red",
+          "lightness": "Lighter",
+          "name": "禁止取料"
+        }
+      ]
+    },
+    {
+      "id": "fldHSU8F4n",
+      "name": "适用栏目",
+      "type": "select",
+      "options": [
+        {
+          "hue": "Turquoise",
+          "lightness": "Lighter",
+          "name": "一人作战室"
+        },
+        {
+          "hue": "Yellow",
+          "lightness": "Lighter",
+          "name": "工作流拆解"
+        },
+        {
+          "hue": "Blue",
+          "lightness": "Lighter",
+          "name": "真实项目复盘"
+        },
+        {
+          "hue": "Wathet",
+          "lightness": "Lighter",
+          "name": "新工具上生产线"
+        },
+        {
+          "hue": "Lime",
+          "lightness": "Lighter",
+          "name": "自动化赚钱实验"
+        }
+      ]
+    }
+  ],
+  "09": [
+    {
+      "id": "fldwfE9Y72",
+      "name": "发布渠道",
+      "type": "select",
+      "options": [
+        {
+          "hue": "Green",
+          "lightness": "Lighter",
+          "name": "公众号"
+        },
+        {
+          "hue": "Blue",
+          "lightness": "Lighter",
+          "name": "朋友圈"
+        },
+        {
+          "hue": "Red",
+          "lightness": "Lighter",
+          "name": "小红书"
+        },
+        {
+          "hue": "Purple",
+          "lightness": "Lighter",
+          "name": "知识星球"
+        },
+        {
+          "hue": "Wathet",
+          "lightness": "Lighter",
+          "name": "知乎"
+        },
+        {
+          "hue": "Gray",
+          "lightness": "Lighter",
+          "name": "抖音"
+        },
+        {
+          "hue": "Turquoise",
+          "lightness": "Lighter",
+          "name": "视频号"
+        },
+        {
+          "hue": "Carmine",
+          "lightness": "Lighter",
+          "name": "B站"
+        }
+      ]
+    },
+    {
+      "id": "fldah5uj0z",
+      "name": "稿件状态",
+      "type": "select",
+      "options": [
+        {
+          "hue": "Gray",
+          "lightness": "Lighter",
+          "name": "待生成"
+        },
+        {
+          "hue": "Orange",
+          "lightness": "Lighter",
+          "name": "已生成待审"
+        },
+        {
+          "hue": "Purple",
+          "lightness": "Lighter",
+          "name": "已审待发"
+        },
+        {
+          "hue": "Green",
+          "lightness": "Lighter",
+          "name": "已发布"
+        }
+      ]
+    },
+    {
+      "id": "fldxU90ead",
+      "name": "审核重点",
+      "type": "text",
+      "options": null
+    },
+    {
+      "id": "fldHQL3HnS",
+      "name": "发布后数据",
+      "type": "text",
+      "options": null
+    },
+    {
+      "id": "fld2JdkF1v",
+      "name": "发布标题",
+      "type": "text",
+      "options": null
+    },
+    {
+      "id": "fldkyRLUNC",
+      "name": "对应精选选题",
+      "type": "link",
+      "options": null
+    },
+    {
+      "id": "fldztCUzn9",
+      "name": "计划发布日",
+      "type": "datetime",
+      "options": null
+    }
+  ]
+}
