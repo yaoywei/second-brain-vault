@@ -71,20 +71,31 @@ TABLE_ALIAS = {
     "template": "14", "templates": "14",
     "visual": "15", "visuals": "15", "image": "15",
     "xplatform": "16", "multi": "16",
+    "对标账号": "tblzBE96JXGz6iUE",  # 2026-07-16 新建：次幂数据找对标专用
+    "benchmarks": "tblzBE96JXGz6iUE",
 }
 
 
 def resolve_table(name_or_id: str) -> tuple[str, str, str]:
-    """返回 (编号, 中文名, table_id)。支持：13 / atom / atoms"""
-    s = name_or_id.strip().lower()
+    """返回 (编号, 中文名, table_id)。支持：13 / atom / atoms / 对标账号 / tblxxx"""
+    s = name_or_id.strip()
     if s in TABLE_ALIAS:
         s = TABLE_ALIAS[s]
-    if s in TABLES:
-        cn, tid = TABLES[s]
-        return s, cn, tid
-    # 可能是 table_id
+    s_lower = s.lower()
+    if s_lower in TABLES:
+        cn, tid = TABLES[s_lower]
+        return s_lower, cn, tid
+    # 可能是 table_id（以 tbl 开头）
+    if s.startswith("tbl"):
+        # 反查 Chinese name / 编号
+        for k, (cn, tid) in TABLES.items():
+            if tid == s:
+                return k, cn, tid
+        # 不在 TABLES 字典里也接受（如新建的 tblzBE96JXGz6iUE）
+        return ("17", "对标账号", s)
+    # 也按 case-insensitive 检查
     for k, (cn, tid) in TABLES.items():
-        if tid == name_or_id:
+        if tid == s:
             return k, cn, tid
     raise ValueError(f"未知表：{name_or_id}（可用：00-16 或 {', '.join(TABLE_ALIAS.keys())}）")
 

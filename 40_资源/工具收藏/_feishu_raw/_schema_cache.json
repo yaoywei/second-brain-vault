@@ -427,5 +427,180 @@
       "type": "datetime",
       "options": null
     }
+  ],
+  "11": [
+    {
+      "id": "fldE9AO2fP",
+      "name": "内容用途",
+      "type": "select",
+      "options": [
+        {
+          "hue": "Green",
+          "lightness": "Lighter",
+          "name": "选题"
+        },
+        {
+          "hue": "Orange",
+          "lightness": "Lighter",
+          "name": "痛点"
+        },
+        {
+          "hue": "Yellow",
+          "lightness": "Lighter",
+          "name": "流程"
+        },
+        {
+          "hue": "Blue",
+          "lightness": "Lighter",
+          "name": "案例"
+        },
+        {
+          "hue": "Wathet",
+          "lightness": "Lighter",
+          "name": "证据"
+        },
+        {
+          "hue": "Purple",
+          "lightness": "Lighter",
+          "name": "工具教程"
+        },
+        {
+          "hue": "Gray",
+          "lightness": "Lighter",
+          "name": "归档"
+        }
+      ]
+    },
+    {
+      "id": "fldm9qrQH1",
+      "name": "文件类型",
+      "type": "select",
+      "options": [
+        {
+          "hue": "Red",
+          "lightness": "Lighter",
+          "name": "PDF"
+        },
+        {
+          "hue": "Blue",
+          "lightness": "Lighter",
+          "name": "MD文档"
+        },
+        {
+          "hue": "Orange",
+          "lightness": "Lighter",
+          "name": "PPTX"
+        },
+        {
+          "hue": "Wathet",
+          "lightness": "Lighter",
+          "name": "DOCX/TXT"
+        },
+        {
+          "hue": "Gray",
+          "lightness": "Lighter",
+          "name": "代码/压缩包"
+        },
+        {
+          "hue": "Purple",
+          "lightness": "Lighter",
+          "name": "视频"
+        },
+        {
+          "hue": "Gray",
+          "lightness": "Light",
+          "name": "其他"
+        }
+      ]
+    },
+    {
+      "id": "fldr5lwXnW",
+      "name": "源链接",
+      "type": "text",
+      "options": null
+    },
+    {
+      "id": "fld401kUYC",
+      "name": "资料标题",
+      "type": "text",
+      "options": null
+    },
+    {
+      "id": "fldVhk7MZ8",
+      "name": "精洗等级",
+      "type": "select",
+      "options": [
+        {
+          "hue": "Green",
+          "lightness": "Lighter",
+          "name": "S-直接进精选池"
+        },
+        {
+          "hue": "Lime",
+          "lightness": "Lighter",
+          "name": "A-可转选题"
+        },
+        {
+          "hue": "Wathet",
+          "lightness": "Lighter",
+          "name": "B-证据/背景"
+        },
+        {
+          "hue": "Gray",
+          "lightness": "Lighter",
+          "name": "C-仅归档"
+        },
+        {
+          "hue": "Red",
+          "lightness": "Lighter",
+          "name": "D-跑偏不用"
+        }
+      ]
+    },
+    {
+      "id": "fldjJesJxH",
+      "name": "可产出方向",
+      "type": "text",
+      "options": null
+    },
+    {
+      "id": "fld5tNB4oD",
+      "name": "源路径",
+      "type": "text",
+      "options": null
+    },
+    {
+      "id": "fld8e1d7w5",
+      "name": "推荐动作",
+      "type": "select",
+      "options": [
+        {
+          "hue": "Green",
+          "lightness": "Lighter",
+          "name": "拆成精选选题"
+        },
+        {
+          "hue": "Orange",
+          "lightness": "Lighter",
+          "name": "补证据后使用"
+        },
+        {
+          "hue": "Wathet",
+          "lightness": "Lighter",
+          "name": "只做背景参考"
+        },
+        {
+          "hue": "Red",
+          "lightness": "Lighter",
+          "name": "排除生产链"
+        }
+      ]
+    },
+    {
+      "id": "fldgHoVU8o",
+      "name": "备注",
+      "type": "text",
+      "options": null
+    }
   ]
 }

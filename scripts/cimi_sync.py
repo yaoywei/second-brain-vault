@@ -10,6 +10,10 @@ cimi_sync.py — 从次幂数据同步公众号数据到本 vault
   python3 cimi_sync.py article-stats URL # 单文章阅读/点赞（0.02元）
   python3 cimi_sync.py sync-all          # 跑一次完整快照
   python3 cimi_sync.py dry-run           # 看会调哪些，不真发
+  python3 cimi_sync.py search-articles "AI 自动化"  # 微信搜一搜（找对标 0.05元）
+  python3 cimi_sync.py wechat-hot         # 微信爆款（0.10元）
+  python3 cimi_sync.py toutiao-hot        # 头条爆款（0.10元）
+  python3 cimi_sync.py hot-ranking        # 网络热榜（0.01元）
 
 ⚠️  成本控制：脚本会在月底用满 CIMI_MONTHLY_BUDGET 时自动停止
 📦  凭据从 ~/.config/second-brain/cimi.env 读取，不进 vault
@@ -20,6 +24,7 @@ Created: 2026-07-16
 
 import json
 import os
+import subprocess
 import sys
 import time
 from datetime import datetime, timezone
@@ -29,7 +34,7 @@ from urllib import request, error, parse
 # ============================================================
 #  Config
 # ============================================================
-API_HOST = "http://api.cimidata.com"
+API_HOST = "https://www.cimidata.com/"  # 2026-07-16 修正：原 host http://api.cimidata.com 已 404；末尾 / 防止与 endpoint 拼成 comapi/...
 ENV_FILE = Path.home() / ".config" / "second-brain" / "cimi.env"
 VAULT_ROOT = Path("/Volumes/External/工作资料/第二大脑/第二大脑")
 MOC_FILE = VAULT_ROOT / "30_领域" / "公众号运营" / "MOC.md"
@@ -106,35 +111,81 @@ def check_budget(cfg, state, will_spend):
         sys.exit(2)
     return spent
 
-def call_api(cfg, endpoint, payload=None):
-    """通用 POST 请求
-    注：次幂数据鉴权方式文档未公开，默认按国产 API 惯例用 X-Appid + X-Secret header
-    如不通请到 https://www.showdoc.com.cn/2265380957870963 看官方说明改
+def cimi_curl(method, url, payload=None, token=None):
+    """通过 subprocess + curl 调次幂 API（绕过 Python 3.14 urllib 的 SSL EOF bug）
+
+    - method: 'GET' / 'POST'
+    - url: 完整 URL（可带 query string）
+    - payload: dict（POST 时序列化为 JSON body，GET 时作 query string）
     """
-    url = f"{API_HOST}/{endpoint}"
-    body = json.dumps(payload or {}).encode("utf-8")
-
-    # 优先按官方常见的 token 模式 + fallback 到 header 模式
-    headers = {
-        "Content-Type": "application/json",
-        "X-Appid": cfg["CIMI_APPID"],
-        "X-Secret": cfg["CIMI_SECRET"],
-        # 次幂常见的形式：Authorization: Bearer {appid}:{secret}
-        "Authorization": f"Bearer {cfg['CIMI_APPID']}:{cfg['CIMI_SECRET']}",
-        "User-Agent": "second-brain-cimi-sync/0.1",
-    }
-
-    req = request.Request(url, data=body, headers=headers, method="POST")
+    cmd = ["curl", "-s", "-X", method]
+    if method == "POST":
+        cmd += ["-H", "Content-Type: application/json"]
+        if payload:
+            cmd += ["-d", json.dumps(payload, ensure_ascii=False)]
+    if token:
+        cmd += ["--url", f"{url}{'&' if '?' in url else '?'}access_token={token}"]
+    elif payload and method == "GET":
+        from urllib.parse import urlencode
+        cmd += ["--url", f"{url}{'&' if '?' in url else '?'}{urlencode(payload)}"]
+    else:
+        cmd += ["--url", url]
+    cmd += ["--max-time", "20"]
+    out = subprocess.run(cmd, capture_output=True, text=True)
     try:
-        with request.urlopen(req, timeout=15) as resp:
-            return json.loads(resp.read().decode("utf-8"))
-    except error.HTTPError as e:
-        body = e.read().decode("utf-8", errors="ignore")
-        print(f"⚠️  HTTP {e.code}：{body[:200]}")
-        return {"code": e.code, "msg": body}
-    except Exception as e:
-        print(f"⚠️  请求失败: {e}")
-        return None
+        return json.loads(out.stdout) if out.stdout else None
+    except Exception:
+        return {"code": -1, "msg": f"非 JSON: {out.stdout[:200]}", "stderr": out.stderr[:200]}
+
+
+def get_token(cfg, force=False):
+    """次幂数据 POST /api/token 换 access_token
+    body: {"app_id": "...", "app_secret": "..."}
+    缓存到 ~/.config/second-brain/cimi_token.json
+    """
+    import base64
+    token_file = Path.home() / ".config" / "second-brain" / "cimi_token.json"
+    if not force and token_file.exists():
+        try:
+            cached = json.loads(token_file.read_text())
+            if cached.get("expires_at", 0) > time.time() + 60:
+                return cached["access_token"]
+        except Exception:
+            pass
+    url = f"{API_HOST}api/token"
+    result = cimi_curl("POST", url, payload={
+        "app_id": cfg["CIMI_APPID"],
+        "app_secret": cfg["CIMI_SECRET"],
+    })
+    if result and result.get("code") == 200 and result.get("data", {}).get("access_token"):
+        token = result["data"]["access_token"]
+        expires_in = result["data"].get("expires_in", 7200)
+        token_file.parent.mkdir(parents=True, exist_ok=True)
+        token_file.write_text(json.dumps({
+            "access_token": token,
+            "expires_at": time.time() + expires_in,
+        }))
+        return token
+    raise RuntimeError(f"换 token 失败: {result}")
+
+
+def call_api(cfg, endpoint, payload=None, method="POST"):
+    """通用请求（access_token 通过 query string 鉴权）
+
+    endpoint 格式：'api/v2/accounts/search'（无前导 /，跟 host 直接拼）
+    method: POST（业务默认）/ GET
+    """
+    token = get_token(cfg)
+    if endpoint.startswith("/"):
+        endpoint = endpoint[1:]
+    url = f"{API_HOST}{endpoint}"
+    if method == "GET" and payload:
+        # GET 请求把参数拼到 URL
+        from urllib.parse import urlencode
+        url = f"{url}?{urlencode(payload)}"
+        payload = None
+    return cimi_curl(method, url, payload=payload, token=token)
+
 
 def estimate_cost(endpoint):
     return PRICE_TABLE.get(endpoint, 0.05)
@@ -143,11 +194,22 @@ def estimate_cost(endpoint):
 #  Commands
 # ============================================================
 def cmd_check_balance(cfg, state):
-    print("🔍 查询余额（免费）...")
-    res = call_api(cfg, "check_balance")
-    print(json.dumps(res, indent=2, ensure_ascii=False) if res else "❌ 无响应")
+    """次幂 MCP 用 GET /api/v3/hotrank + channel_id=1 附带返回余额（实测）"""
+    print("🔍 查询余额（免费，走 hotrank 接口）...")
+    token = get_token(cfg)
+    out = cimi_curl("GET", f"{API_HOST}api/v3/hotrank?channel_id=1&access_token={token}")
+    if out and out.get("code") == 200:
+        bal = out.get("balance", "?")
+        print(f"💰 账户余额: {bal} 次")
+        # 同时也输出热门第 1 条作为「最近一次访问」证明
+        data = out.get("data", [])
+        if data:
+            first = data[0]
+            print(f"🔥 当前微博 Top1: {first.get('title','?')[:50]}（热度 {first.get('hot','?')}）")
+    else:
+        print(json.dumps(out, indent=2, ensure_ascii=False) if out else "❌ 无响应")
     print(f"\n本月已花: ¥{state.get('spend', 0):.2f} / ¥{cfg.get('CIMI_MONTHLY_BUDGET', '10')}")
-    return res
+    return out
 
 def cmd_account_info(cfg, state):
     cost = estimate_cost("get_account_info")
@@ -216,6 +278,112 @@ def cmd_sync_all(cfg, state):
     time.sleep(0.5)
     cmd_history_articles(cfg, state, days=30)
 
+# ============================================================
+#  找对标账号专用（2026-07-16 新增）
+# ============================================================
+def cmd_search_articles(cfg, state, keyword, page=1):
+    """微信搜一搜（公开 API，按关键词搜公众号文章 → 输出包含账号名）
+
+    用法: cimi_sync.py search-articles "AI 自动化" [页数=1]
+    单价: 0.05 元/次
+    """
+    print(f"🔍 微信搜一搜：「{keyword}」第 {page} 页...")
+    cost = estimate_cost("search_articles_wechat")
+    check_budget(cfg, state, cost)
+    res = call_api(cfg, "api/v3/articles/search", {
+        "keyword": keyword,
+        "page": page,
+        "page_size": 20,
+    })
+    # search 接口是 POST + body
+    state = record_call(state, "search_articles_wechat", cost)
+    save_state(state)
+    if not res:
+        print("❌ 无响应")
+        return
+    data = res.get("data", {})
+    items = data.get("items") or data.get("list") or []
+    print(f"📊 命中 {len(items)} 条\n")
+    if items:
+        print(f"{'公众号名':<20} {'文章标题':<40} {'发布时间':<12} {'阅读量':>8}")
+        print("-" * 90)
+        seen_accounts = set()
+        for item in items:
+            account = item.get("account_name") or item.get("nickname") or item.get("公众号") or "?"
+            title = item.get("title", "")[:38]
+            published = (item.get("publish_time") or item.get("publish_time_str") or "")[:10]
+            read_count = item.get("read_count", item.get("read", 0))
+            print(f"{account:<20} {title:<40} {published:<12} {read_count:>8}")
+            seen_accounts.add(account)
+        print(f"\n📌 去重后公众号候选：{len(seen_accounts)} 个")
+        for a in sorted(seen_accounts):
+            print(f"   • {a}")
+    print(f"\n💰 本次 ¥{cost:.2f}，本月累计 ¥{state.get('spend', 0):.2f}")
+    # 把结果存到 vault 供师傅后续用
+    out = Path("/tmp/cimi_search_last.json")
+    out.write_text(json.dumps(res, ensure_ascii=False, indent=2))
+    print(f"📄 原始 JSON: {out}")
+
+
+def cmd_wechat_hot(cfg, state):
+    """微信爆款文章（按分类）
+    用法: cimi_sync.py wechat-hot [分类=科技]
+    单价: 0.10 元/次
+    """
+    cat = sys.argv[2] if len(sys.argv) > 2 else "科技"
+    print(f"🔥 微信爆款文章：分类「{cat}」...")
+    cost = estimate_cost("get_wechat_hot_articles")
+    check_budget(cfg, state, cost)
+    res = call_api(cfg, "api/v2/hot/articles", {"category": cat})
+    state = record_call(state, "get_wechat_hot_articles", cost)
+    save_state(state)
+    if not res:
+        print("❌ 无响应")
+        return
+    data = res.get("data", {})
+    items = data if isinstance(data, list) else data.get("items", [])
+    print(f"📊 共 {len(items)} 条爆款\n")
+    for i, item in enumerate(items[:10], 1):
+        title = item.get("title", "")[:50]
+        account = item.get("account_name") or item.get("nickname", "?")
+        read = item.get("read_count", 0)
+        print(f"{i:2d}. [{account}] {title}（阅读 {read}）")
+    print(f"\n💰 本次 ¥{cost:.2f}，本月累计 ¥{state.get('spend', 0):.2f}")
+
+
+def cmd_toutiao_hot(cfg, state):
+    """头条爆款文章"""
+    print(f"🔥 头条爆款文章...")
+    cost = estimate_cost("get_toutiao_hot_articles")
+    check_budget(cfg, state, cost)
+    res = call_api(cfg, "api/v2/hot/tt/articles", {})
+    state = record_call(state, "get_toutiao_hot_articles", cost)
+    save_state(state)
+    print(json.dumps(res, indent=2, ensure_ascii=False) if res else "❌ 无响应")
+    print(f"\n💰 本次 ¥{cost:.2f}")
+
+
+def cmd_hot_ranking(cfg, state):
+    """网络热榜（最便宜，0.01 元/次）"""
+    print(f"🌐 网络热榜...")
+    cost = estimate_cost("get_hot_ranking")
+    check_budget(cfg, state, cost)
+    res = call_api(cfg, "api/v3/hotrank", {})
+    state = record_call(state, "get_hot_ranking", cost)
+    save_state(state)
+    if not res:
+        print("❌ 无响应")
+        return
+    data = res.get("data", {})
+    items = data if isinstance(data, list) else data.get("items", [])
+    print(f"📊 共 {len(items)} 条\n")
+    for i, item in enumerate(items[:15], 1):
+        title = item.get("title") or item.get("word", "")[:60]
+        hot = item.get("hot") or item.get("hot_value", 0)
+        print(f"{i:2d}. {title} (热度 {hot})")
+    print(f"\n💰 本次 ¥{cost:.2f}")
+
+
 def cmd_dry_run(cfg, state):
     print("\n📋 Dry run — 不发请求")
     print(f"   账户:        {cfg.get('CIMI_ACCOUNT_NICKNAME', '?')}")
@@ -278,6 +446,20 @@ def main():
         cmd_sync_all(cfg, state)
     elif cmd == "dry-run":
         cmd_dry_run(cfg, state)
+    elif cmd == "search-articles":
+        # 微信搜一搜（找对标账号用）
+        if len(sys.argv) < 3:
+            print("用法: cimi_sync.py search-articles <关键词> [页数=1]")
+            sys.exit(1)
+        keyword = sys.argv[2]
+        page = int(sys.argv[3]) if len(sys.argv) > 3 else 1
+        cmd_search_articles(cfg, state, keyword, page)
+    elif cmd == "wechat-hot":
+        cmd_wechat_hot(cfg, state)
+    elif cmd == "toutiao-hot":
+        cmd_toutiao_hot(cfg, state)
+    elif cmd == "hot-ranking":
+        cmd_hot_ranking(cfg, state)
     else:
         print(f"❌ 未知命令: {cmd}")
         print(__doc__)
